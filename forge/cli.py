@@ -107,6 +107,15 @@ def inspect_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def index_command(args: argparse.Namespace) -> int:
+    """Index a file into code-search structured JSON."""
+    from forge.intelligence.semantic_indexer import SemanticIndexer
+    indexer = SemanticIndexer()
+    meta = indexer.index_file(args.file_path)
+    print(meta.model_dump_json(indent=2))
+    return 0
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         prog="forge",
@@ -133,6 +142,10 @@ def main() -> None:
     inspect_parser = subparsers.add_parser("inspect", help="Inspect report of a completed run")
     inspect_parser.add_argument("run_path", type=str, help="Path to run directory or report.md")
 
+    # forge index
+    index_parser = subparsers.add_parser("index", help="Index a file into structured semantic search JSON")
+    index_parser.add_argument("file_path", type=str, help="Path to file to index")
+
     args = parser.parse_args()
 
     if args.command == "run" or args.command is None:
@@ -146,6 +159,8 @@ def main() -> None:
         sys.exit(replay_command(args))
     elif args.command == "inspect":
         sys.exit(inspect_command(args))
+    elif args.command == "index":
+        sys.exit(index_command(args))
     else:
         parser.print_help()
         sys.exit(1)

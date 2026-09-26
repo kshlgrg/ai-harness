@@ -91,3 +91,20 @@ Fix 401 Unauthorized for expired JWT tokens
     assert len(structured.requirements) >= 2
     req_ids = [r["id"] for r in structured.requirements]
     assert "REQ-001" in req_ids
+
+
+def test_semantic_indexer_offline():
+    from forge.intelligence.semantic_indexer import SemanticIndexer
+    from forge.models.mock import MockModelProvider
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        (root / "sample.py").write_text("def sample_fn(): pass\n", encoding="utf-8")
+        
+        mock_model = MockModelProvider()
+        indexer = SemanticIndexer(root_path=root, model_provider=mock_model)
+        meta = indexer.index_file("sample.py")
+
+        assert meta.language == "Python"
+        assert "sample_fn" in meta.symbols
+        assert meta.test_relevance == "untested"

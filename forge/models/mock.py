@@ -15,14 +15,28 @@ class MockModelProvider(ModelProvider):
 
     def generate(self, prompt: str, system_prompt: str = "", temperature: float = 0.2) -> str:
         self.call_history.append({"prompt": prompt, "system_prompt": system_prompt})
+        full_text = f"{prompt} {system_prompt}"
 
         # Match custom responses
         for key, resp in self.responses.items():
-            if key in prompt:
+            if key in full_text:
                 return resp
 
         # Precise matching on engine system headers
-        if "FORGE Builder" in prompt:
+        if "indexing a single source file" in full_text or "code-search system" in full_text:
+            return json.dumps({
+                "path": "sample.py",
+                "language": "Python",
+                "purpose": "Sample module for unit tests.",
+                "symbols": ["sample_fn"],
+                "imports": ["import sys"],
+                "calls_out_to": [],
+                "side_effects": [],
+                "keywords": ["sample", "test", "helper"],
+                "test_relevance": "untested"
+            })
+
+        if "FORGE Builder" in full_text:
             return json.dumps({
                 "step_id": "STEP-1",
                 "edits": [
@@ -37,7 +51,7 @@ class MockModelProvider(ModelProvider):
                 "summary": "Handled zero divisor safely"
             })
 
-        if "FORGE Master Planner" in prompt:
+        if "FORGE Master Planner" in full_text:
             return json.dumps({
                 "steps": [
                     {
@@ -55,7 +69,7 @@ class MockModelProvider(ModelProvider):
                 "verification_strategy": "Run targeted test suite"
             })
 
-        if "FORGE Diagnostician" in prompt:
+        if "FORGE Diagnostician" in full_text:
             return json.dumps({
                 "cluster_id": "cluster_1",
                 "hypotheses": ["Edge case not handled in target function"],
@@ -66,7 +80,7 @@ class MockModelProvider(ModelProvider):
                 "requires_strategy_shift": False
             })
 
-        if "FORGE Verification Agent" in prompt or "REQUIREMENT TO VERIFY" in prompt:
+        if "FORGE Verification Agent" in full_text or "REQUIREMENT TO VERIFY" in full_text:
             return json.dumps({
                 "req_id": "REQ-001",
                 "satisfied": True,
@@ -74,7 +88,7 @@ class MockModelProvider(ModelProvider):
                 "remaining_risks": []
             })
 
-        if "Adversarial FORGE Critic" in prompt or "Critic evaluating" in prompt or "Critic" in prompt:
+        if "Adversarial FORGE Critic" in full_text or "Critic evaluating" in full_text or "Critic" in full_text:
             return json.dumps({
                 "passed": True,
                 "findings": [
@@ -85,7 +99,7 @@ class MockModelProvider(ModelProvider):
                 "recommendation": "Ready for evidence-backed completion"
             })
 
-        if "FORGE Task Understanding" in prompt:
+        if "FORGE Task Understanding" in full_text:
             return json.dumps({
                 "objective": "Resolve issue based on requirements",
                 "requirements": [
