@@ -36,7 +36,7 @@ run:
 	fi
 	@mkdir -p .agent/runs
 	@echo "==> [make run] Initialising and launching AI Harness..."
-	@AI_API_KEY="$(AI_API_KEY)" $(PYTHON) -m forge.cli run $(if $(ISSUE),--issue "$(ISSUE)",)
+	@$(PYTHON) -m forge.cli run $(if $(ISSUE),--issue "$(ISSUE)",)
 
 test:
 	@if [ ! -f "$(PYTHON)" ]; then \
@@ -44,7 +44,7 @@ test:
 		$(MAKE) setup; \
 	fi
 	@echo "==> [make test] Executing test and evaluation procedure..."
-	@AI_API_KEY="$(AI_API_KEY)" $(PYTHON) -m pytest -v tests/
+	@$(PYTHON) -m pytest -v tests/
 
 clean:
 	@echo "==> [make clean] Removing generated artefacts..."

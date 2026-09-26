@@ -50,10 +50,13 @@ def run_command(args: argparse.Namespace) -> int:
         issue_text = "Verify project repository structure and run self-test suite."
 
     # Initialize model provider based on AI_API_KEY
-    api_key = os.environ.get("AI_API_KEY") or os.environ.get("OPENAI_API_KEY")
+    from forge.config import get_config
+    config = get_config()
+    api_key = config.api_key
     if api_key:
         try:
-            model = LiveLLMProvider(api_key=api_key)
+            model = LiveLLMProvider(api_key=api_key, model=config.model, base_url=config.base_url)
+            console.print(f"[bold green]Connected to model:[/bold green] [cyan]{config.model}[/cyan] ({config.base_url})")
         except Exception as e:
             console.print(f"[yellow]Warning: Could not initialize LiveLLMProvider ({e}). Falling back to Mock.[/yellow]")
             model = MockModelProvider()
